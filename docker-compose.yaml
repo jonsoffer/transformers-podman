@@ -1,0 +1,6 @@
+services:
+  transformers:
+    build: ./
+    env_file: transformers.env
+
+
