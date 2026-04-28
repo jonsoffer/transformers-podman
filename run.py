@@ -7,18 +7,19 @@ import os
 
 login(token = os.environ["HF_TOKEN"])
 
-print(configuration_auto.CONFIG_MAPPING.items())
+from transformers import pipeline
 
-# This will AUTOMATICALLY download the model from Hugging Face!
-# No need to manually download anything!
-model_name = "chiedo/hello-world"  # Replace with your actual model name
-
-print("Downloading model... (this happens only once)")
-tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True)
-
-# Test the model
-output = model.generate_hello_world()
-print(output)  # "Hello World!"
-
+pipe = pipeline("image-text-to-text", model="HuggingFaceTB/SmolVLM-256M-Instruct")
+messages = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "image", "url": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/p-blog/candy.JPG"},
+            {"type": "text", "text": "What animal is on the candy?"}
+        ]
+    },
+]
+pipe(text=messages)
+print(pipe)
+print(messages)
 

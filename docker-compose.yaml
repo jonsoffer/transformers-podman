@@ -2,5 +2,15 @@ services:
   transformers:
     build: ./
     env_file: transformers.env
-
+    environment:
+      - HF_HOME=/var/lib/hf_cache
+    volumes:
+      - type: volume
+        source: hf_cache
+        target: /var/lib/hf_cache
+    devices:
+      - nvidia.com/gpu=all
+volumes:
+  hf_cache:
+    external: true
 
