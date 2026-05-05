@@ -9,17 +9,7 @@ login(token = os.environ["HF_TOKEN"])
 
 from transformers import pipeline
 
-pipe = pipeline("image-text-to-text", model="HuggingFaceTB/SmolVLM-256M-Instruct")
-messages = [
-    {
-        "role": "user",
-        "content": [
-            {"type": "image", "url": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/p-blog/candy.JPG"},
-            {"type": "text", "text": "What animal is on the candy?"}
-        ]
-    },
-]
-pipe(text=messages)
-print(pipe)
-print(messages)
+qa_model = pipeline("text-generation", model="HuggingFaceTB/SmolVLM-256M-Instruct")
+qam = qa_model(text_inputs="what is the meaning of life?")
 
+print(qam)
