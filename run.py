@@ -4,20 +4,25 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig, AutoMo
 from transformers.models.auto import configuration_auto
 from huggingface_hub import login
 import os
-from time import sleep
-import transformers
-
-print(transformers.__version__)
-
-login(token = os.environ["HF_TOKEN"])
-
+import torch
 from transformers import pipeline
 
-model = "google/gemma-4-E2B"
+login(token=os.environ["HF_TOKEN"])
 
-qa_model = pipeline("text-generation", model=model)
-qam = qa_model(text_inputs="what is the meaning of life?")
+model_id = "google/gemma-4-E2B"
 
-print(qam)
+# 1. Clear any leftover cache from the previous crash
+torch.cuda.empty_cache()
 
-sleep(1000000)
+# 2. Initialize the pipeline with memory optimizations
+qa_model = pipeline(
+    "text-generation", 
+    model=model_id,
+    torch_dtype=torch.bfloat16,     # Cuts the memory footprint in half (use torch.float16 if your GPU is older)
+    device_map="auto"               # Dynamically manages memory allocation
+)
+
+# 3. Use a context manager to make sure gradients aren't tracked
+with torch.no_grad():
+    qam = qa_model("what is the meaning of life?", max_new_tokens=50)
+    print(qam)
