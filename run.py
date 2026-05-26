@@ -6,6 +6,8 @@ from huggingface_hub import login
 import os
 import torch
 from transformers import pipeline
+import mlflow
+import mlflow.transformers
 
 login(token=os.environ["HF_TOKEN"])
 
@@ -19,10 +21,14 @@ qa_model = pipeline(
     "text-generation", 
     model=model_id,
     torch_dtype=torch.bfloat16,     # Cuts the memory footprint in half (use torch.float16 if your GPU is older)
-    device_map="auto"               # Dynamically manages memory allocation
+    # device_map="auto"               # Dynamically manages memory allocation
 )
 
 # 3. Use a context manager to make sure gradients aren't tracked
 with torch.no_grad():
-    qam = qa_model("what is the meaning of life?", max_new_tokens=50)
-    print(qam)
+    with mlflow.start_run():
+        mlflow.transformers.log_model(
+            transformers_model=qa_model,
+            artifact_path="model",
+            tasks="text-generation"
+        )
